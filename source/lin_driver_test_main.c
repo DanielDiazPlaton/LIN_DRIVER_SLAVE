@@ -136,7 +136,7 @@ static void test_task(void *pvParameters)
 	lin1d3_nodeConfig_t node_config;
 	lin1d3_handle_t* master_handle;
 	lin1d3_handle_t* slave_handle;
-	//lin1d3_handle_t* local_slave_handle;
+	lin1d3_handle_t* local_slave_handle;
 
 #if defined(MASTER)
 	/* Set Master Config */
@@ -227,7 +227,7 @@ static void test_task(void *pvParameters)
 }
 
 
-#if defined(SLAVE_A)
+
 static void	message_1_callback_local_slave(void* message)
 {
 	uint8_t* message_data = (uint8_t*)message;
@@ -282,12 +282,12 @@ static void	message_2_callback_local_slave(void* message)
 	}else if(message_data[0] == 0x03){			//0b11
 		PRINTF("SW2 & SW3 Presionados  \r\n");
 	}else{
-		PRINTF("Slave reciived wrong data %d,%d\r\n", message_data[0], message_data[1]);
+		PRINTF("Slave received wrong data %d,%d\r\n", message_data[0], message_data[1]);
 	}
 	//PRINTF("Local Slave got response to message 1 %d,%d\r\n", message_data[0], message_data[1]);
 }
 
-#endif
+
 
 static void	message_2_callback_slave(void* message)
 {
@@ -297,18 +297,24 @@ static void	message_2_callback_slave(void* message)
 	if(button1_pressed == 0 && button2_pressed == 0 ){
 		message_data[0] = 0x00;		//0b00
 		PRINTF("LED BLUE \r\n");
+		GPIO_PortSet(BOARD_LED_GREEN_GPIO, 1u << BOARD_LED_GREEN_GPIO_PIN);
+		GPIO_PortSet(BOARD_LED_RED_GPIO, 1u << BOARD_LED_RED_GPIO_PIN);
 		GPIO_PortClear(BOARD_LED_BLUE_GPIO, 1u << BOARD_LED_BLUE_GPIO_PIN);
 	}
 	else if(button1_pressed == 1 && button2_pressed == 0 ){
 		message_data[0] = 0x02;		//0b10
 		button1_pressed = 0;
 		PRINTF("LED RED \r\n");
+		GPIO_PortSet(BOARD_LED_BLUE_GPIO, 1u << BOARD_LED_BLUE_GPIO_PIN);
+		GPIO_PortSet(BOARD_LED_GREEN_GPIO, 1u << BOARD_LED_GREEN_GPIO_PIN);
 		GPIO_PortClear(BOARD_LED_RED_GPIO, 1u << BOARD_LED_RED_GPIO_PIN);
 	}
 	else if(button1_pressed == 0 && button2_pressed == 1 ){
 		message_data[0] = 0x01;		//0b01
 		PRINTF("LED RED \r\n");
 		button2_pressed = 0;
+		GPIO_PortSet(BOARD_LED_BLUE_GPIO, 1u << BOARD_LED_BLUE_GPIO_PIN);
+		GPIO_PortSet(BOARD_LED_GREEN_GPIO, 1u << BOARD_LED_GREEN_GPIO_PIN);
 		GPIO_PortClear(BOARD_LED_RED_GPIO, 1u << BOARD_LED_RED_GPIO_PIN);
 	}
 	else if(button1_pressed == 1 && button2_pressed == 1 ){
@@ -316,7 +322,8 @@ static void	message_2_callback_slave(void* message)
 		button1_pressed = 0;
 		button2_pressed = 0;
 		PRINTF("LED GREEN \r\n");
-		//GPIO_PortClear(BOARD_LED_RED_GPIO, 1u << BOARD_LED_RED_GPIO_PIN);
+		GPIO_PortSet(BOARD_LED_BLUE_GPIO, 1u << BOARD_LED_BLUE_GPIO_PIN);
+		GPIO_PortSet(BOARD_LED_RED_GPIO, 1u << BOARD_LED_RED_GPIO_PIN);
 		GPIO_PortClear(BOARD_LED_GREEN_GPIO, 1u <<BOARD_LED_GREEN_GPIO_PIN);
 	}
 	else{
